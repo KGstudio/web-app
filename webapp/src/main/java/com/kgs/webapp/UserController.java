@@ -1,66 +1,61 @@
 package com.kgs.webapp;
 
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users") // Указываем базовый путь для всех методов этого контроллера
 public class UserController {
-    // Моковые данные пользователей
+
+    // Список пользователей
     private static List<User> users = new ArrayList<>();
 
+    // Блок для моковых данных
     static {
         for (int i = 1; i <= 10; i++) {
             users.add(new User(i, "Юзерович" + i));
         }
     }
 
-    @GetMapping("/users")
-    public String users() {
-// Endpoint для получения списка пользователей (getListUsers)
-// Возвращает JSON со списком пользователей.
-// Пример ответа:
-// [
-//     {"userId":1,"family":"Юзерович1"},
-//     {"userId":2,"family":"Юзерович2"},
-//     ...
-// ]
-
-        return "users";
-    }
-    @ResponseStatus(HttpStatus.OK)
+    // Обработка GET-запроса для получения списка пользователей
+    @GetMapping(produces = "application/json") // Указываем, что метод возвращает JSON
     public List<User> getListUsers() {
-        return users.stream()
-        .map(user -> new User(user.getUserId(), user.getFamily()))
-        .toList();
+        return users; // Возвращаем список пользователей
     }
 
-    @PostMapping("/users")
-    @ResponseBody
-    @ResponseStatus(HttpStatus.CREATED)
+    // Обработка POST-запроса для создания нового пользователя
+    @PostMapping(consumes = "application/json", produces = "application/json") // Указываем, что метод принимает JSON и возвращает JSON
     public Response createUser(@RequestBody User user) {
-        // Простая реализация создания пользователя без базы данных.
-        // В реальном приложении следует использовать базу данных для хранения данных.
-        return new Response(user.getUserId(), user.getFamily(), "Создан");
+        // Создание пользователя
+        users.add(user); // Добавляем нового пользователя в список
+        return new Response(user.getUserId(), user.getFamily(), "Создан"); // Возвращаем ответ с информацией о создании
     }
-    
-    private static class Response { 
-        private int userId; 
-        private String family; 
+
+    // Внутренний класс для представления ответа на создание пользователя
+    private static class Response {
+        private int userId;
+        private String family;
         private String status;
-  
-        public Response(int userId, String family, String status) { 
-            this.userId = userId; 
-            this.family = family; 
-            this.status = status; 
-        } 
-  
-        @Override
-        public String toString() {  
-            return "{\"userId\":" +(userId)+",\"family\":\""+(family)+"\",\"status\":\""+(status)+"\"}";
-  }
-}
+
+        public Response(int userId, String family, String status) {
+            this.userId = userId;
+            this.family = family;
+            this.status = status;
+        }
+
+        @SuppressWarnings("unused")
+        public int getUserId() {
+            return userId;
+        }
+        @SuppressWarnings("unused")
+        public String getFamily() {
+            return family;
+        }
+        @SuppressWarnings("unused")
+        public String getStatus() {
+            return status;
+        }
+    }
 }
